@@ -1,5 +1,6 @@
-set r1 1
-set r2 2
-add r1 r2 r3
-store r1 1
-load r1 1
+seti r1 10
+seti r2 1
+seti r3 0
+out r1
+sub r1 r2 r1
+jneq r1 r3 4
