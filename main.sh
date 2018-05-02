@@ -63,6 +63,22 @@ set_register()
     return 0
 }
 
+get_line()
+{
+    line_idx=$1
+    file=$2
+
+    cur_idx=0
+    while read -r line
+    do
+        if test $cur_idx -eq $line_idx; then
+            echo $line
+        fi
+
+        cur_idx=$(($cur_idx + 1))
+    done < $file
+}
+
 echo '
 
 
@@ -86,9 +102,9 @@ echo '
 
 prog_size=$(($(wc -l < insts) + 1))
 
-while [ $pc != $prog_size ];
+while test $pc -ne $prog_size;
 do
-    inst=$(sed -n "$pc"p insts)
+    inst=$(get_line $(($pc - 1)) insts)
 
     IFS=' '
     set -- $inst
@@ -151,7 +167,7 @@ do
             a=$(get_register $reg_1)
             b=$(get_register $reg_2)
             # echo if $a == $b
-            if test $a == $b; then
+            if test $a -eq $b; then
                 pc=$(($jump_pos - 1))
                 # echo jumping to $pc
             fi
@@ -161,7 +177,7 @@ do
             a=$(get_register $reg_1)
             b=$(get_register $reg_2)
             # echo if $a != $b
-            if test $a != $b; then
+            if test $a -ne $b; then
                 pc=$(($jump_pos - 1))
                 # echo jumping to $pc
             fi

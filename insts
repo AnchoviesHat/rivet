@@ -1,4 +1,4 @@
-seti r1 10
+seti r1 1000
 seti r2 1
 seti r3 0
 out r1
