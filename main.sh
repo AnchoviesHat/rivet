@@ -1,4 +1,4 @@
-#!/bin/sh --posix
+#!/bin/sh
 
 pc=1
 rg0=0
@@ -13,19 +13,15 @@ get_register()
     case $reg in
         r1)
             echo $rg0
-            return $rg0
             ;;
         r2)
             echo $rg1
-            return $rg1
             ;;
         r3)
             echo $rg2
-            return $rg2
             ;;
         r4)
             echo $rg3
-            return $rg3
             ;;
         *)
             echo Invalid register $1
