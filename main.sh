@@ -29,6 +29,7 @@ get_register()
             ;;
         *)
             echo Invalid register $1
+            rm mem
             exit 1
             ;;
     esac
@@ -54,6 +55,7 @@ set_register()
             ;;
         *)
             echo Invalid register $1
+            rm mem
             exit 1
             ;;
     esac
@@ -170,6 +172,8 @@ do
             ;;
         *)
             echo invalid op $op
+            rm mem
+            exit 1
             ;;
     esac
 
