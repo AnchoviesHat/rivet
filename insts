@@ -1,0 +1,5 @@
+set r1 1
+set r2 2
+add r1 r2 r3
+store r1 1
+load r1 1
