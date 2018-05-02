@@ -1,5 +1,3 @@
-#!/bin/sh
-
 pc=1
 rg0=0
 rg1=0
@@ -12,16 +10,16 @@ get_register()
 
     case $reg in
         r1)
-            echo $rg0
+            ret=$rg0
             ;;
         r2)
-            echo $rg1
+            ret=$rg1
             ;;
         r3)
-            echo $rg2
+            ret=$rg2
             ;;
         r4)
-            echo $rg3
+            ret=$rg3
             ;;
         *)
             echo Invalid register $1
@@ -55,8 +53,6 @@ set_register()
             exit 1
             ;;
     esac
-
-    return 0
 }
 
 get_line()
@@ -68,7 +64,7 @@ get_line()
     while read -r line
     do
         if test $cur_idx -eq $line_idx; then
-            echo $line
+            break
         fi
 
         cur_idx=$(($cur_idx + 1))
@@ -100,7 +96,7 @@ prog_size=$(($(wc -l < insts) + 1))
 
 while test $pc -ne $prog_size;
 do
-    inst=$(get_line $(($pc - 1)) insts)
+    get_line $(($pc - 1)) insts; inst=$line
 
     IFS=' '
     set -- $inst
@@ -108,36 +104,36 @@ do
     reg_1=$2
     reg_2=$3
     imm=$3
-    ret=$4
+    reg_3=$4
     jump_pos=$4
 
     case $op in
         add)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
-            set_register $ret $(($a + $b))
-            v=$(get_register $ret)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
+            set_register $reg_3 $(($a + $b))
+            # get_register $reg_3; v=$ret
             # echo $a + $b = $v
             ;;
         sub)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
-            set_register $ret $(($a - $b))
-            v=$(get_register $ret)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
+            set_register $reg_3 $(($a - $b))
+            # get_register $reg_3; v=$ret
             # echo $a - $b = $v
             ;;
         mul)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
-            set_register $ret $(($a * $b))
-            v=$(get_register $ret)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
+            set_register $reg_3 $(($a * $b))
+            # get_register $reg_3; v=$ret
             # echo $a \* $b = $v
             ;;
         div)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
-            set_register $ret $(($a / $b))
-            v=$(get_register $ret)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
+            set_register $reg_3 $(($a / $b))
+            # get_register $reg_3; v=$ret
             # echo $a / $b = $v
             ;;
         seti)
@@ -145,23 +141,23 @@ do
             # echo $reg_1 = $imm
             ;;
         set)
-            a=$(get_register $reg_2)
+            get_register $reg_2; a=$ret
             set_register $reg_1 $a
             # echo $reg_1 = $reg_2
             ;;
         load)
-            v=$(sed "$imm"!d mem)
+            sed "$imm"!d mem; v=$ret
             set_register $reg_1 $v
             # echo $reg_1 = \(mem\["$imm"\]: $v\)
             ;;
         store)
-            a=$(get_register $reg_1)
+            get_register $reg_1; a=$ret
             sed -i '' "$imm"s/.*/$a/ mem
             # echo mem\["$imm"\] = \($reg_1: $a\)
             ;;
         jeq)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
             # echo if $a == $b
             if test $a -eq $b; then
                 pc=$(($jump_pos - 1))
@@ -170,8 +166,8 @@ do
             # echo not jumping
             ;;
         jneq)
-            a=$(get_register $reg_1)
-            b=$(get_register $reg_2)
+            get_register $reg_1; a=$ret
+            get_register $reg_2; b=$ret
             # echo if $a != $b
             if test $a -ne $b; then
                 pc=$(($jump_pos - 1))
@@ -180,7 +176,7 @@ do
             # echo not jumping
             ;;
         out)
-            echo $(get_register $reg_1)
+            get_register $reg_1; echo $ret
             ;;
         *)
             echo invalid op $op
