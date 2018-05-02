@@ -55,6 +55,9 @@ set_register()
     esac
 }
 
+# TODO This is SLOW!
+# Is there a more efficient way to only read in the
+# line I want, or preserve the file ptr for next read?
 get_line()
 {
     line_idx=$1
@@ -92,6 +95,7 @@ echo '
 
 ' > mem
 
+# TODO Is this really fastest? Would doing a bunch of reads beat this?
 prog_size=$(($(wc -l < insts) + 1))
 
 while test $pc -ne $prog_size;
@@ -136,6 +140,7 @@ do
             # get_register $reg_3; v=$ret
             # echo $a / $b = $v
             ;;
+
         seti)
             set_register $reg_1 $imm
             # echo $reg_1 = $imm
@@ -145,6 +150,8 @@ do
             set_register $reg_1 $a
             # echo $reg_1 = $reg_2
             ;;
+
+        # TODO These are awfully janky... Is there a way to get rid of sed for memory?
         load)
             sed "$imm"!d mem; v=$ret
             set_register $reg_1 $v
@@ -155,6 +162,7 @@ do
             sed -i '' "$imm"s/.*/$a/ mem
             # echo mem\["$imm"\] = \($reg_1: $a\)
             ;;
+
         jeq)
             get_register $reg_1; a=$ret
             get_register $reg_2; b=$ret
@@ -175,9 +183,11 @@ do
             fi
             # echo not jumping
             ;;
+
         out)
             get_register $reg_1; echo $ret
             ;;
+
         *)
             echo invalid op $op
             rm mem
